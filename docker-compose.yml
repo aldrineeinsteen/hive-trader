@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  cassandra:
+    image: cassandra:5.0
+    container_name: hive-trader-cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      CASSANDRA_CLUSTER_NAME: hive-trader
+      CASSANDRA_DC: datacenter1
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: hive-trader-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deploy/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: hive-trader-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus

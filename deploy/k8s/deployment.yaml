@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hive-trader-engine
+  namespace: hive-trader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hive-trader-engine
+  template:
+    metadata:
+      labels:
+        app: hive-trader-engine
+    spec:
+      containers:
+        - name: engine
+          image: ghcr.io/example/hive-trader-engine:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TRADING_ENABLED
+              valueFrom:
+                configMapKeyRef:
+                  name: hive-trader-config
+                  key: TRADING_ENABLED
+            - name: TRADING_KILL_SWITCH
+              valueFrom:
+                secretKeyRef:
+                  name: hive-trader-secret
+                  key: TRADING_KILL_SWITCH
+            - name: CASSANDRA_CONTACT_POINTS
+              valueFrom:
+                configMapKeyRef:
+                  name: hive-trader-config
+                  key: CASSANDRA_CONTACT_POINTS
+            - name: CASSANDRA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hive-trader-secret
+                  key: CASSANDRA_USERNAME
+            - name: CASSANDRA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hive-trader-secret
+                  key: CASSANDRA_PASSWORD
+            - name: ETORO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hive-trader-secret
+                  key: ETORO_API_KEY
+            - name: ETORO_USER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hive-trader-secret
+                  key: ETORO_USER_KEY
+            - name: ETORO_DEMO_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: hive-trader-config
+                  key: ETORO_DEMO_MODE
+            - name: ASTRA_SECURE_BUNDLE_PATH
+              value: /mnt/secrets/astra/secure-connect.zip
+          volumeMounts:
+            - mountPath: /mnt/secrets/astra
+              name: astra-bundle
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 150m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 768Mi
+      volumes:
+        - name: astra-bundle
+          secret:
+            secretName: hive-trader-astra-bundle

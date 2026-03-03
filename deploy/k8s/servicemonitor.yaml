@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hive-trader-engine
+  namespace: hive-trader
+spec:
+  selector:
+    matchLabels:
+      app: hive-trader-engine
+  namespaceSelector:
+    matchNames:
+      - hive-trader
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s

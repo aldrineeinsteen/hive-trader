@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+hive:
+  trading:
+    enabled: ${TRADING_ENABLED:false}
+    kill-switch: ${TRADING_KILL_SWITCH:true}
+    paused: ${TRADING_PAUSED:false}
+
+# eToro adapter env vars consumed by modules/etoro-adapter:
+# - ETORO_BASE_URL (default https://public-api.etoro.com)
+# - ETORO_API_KEY (required for live adapter calls)
+# - ETORO_USER_KEY (required for live adapter calls)
+# - ETORO_DEMO_MODE (default true)
+# - ETORO_OPEN_BY_AMOUNT_PATH (optional override)
+# - ETORO_TIMEOUT_SECONDS (default 15)
+#
+# Optional Cassandra charge ledger persistence:
+# - CASSANDRA_SESSION_ENABLED=true

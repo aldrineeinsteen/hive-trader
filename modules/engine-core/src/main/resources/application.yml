@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: hive-trader-engine
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+hive:
+  trading:
+    enabled: ${TRADING_ENABLED:false}
+    kill-switch: ${TRADING_KILL_SWITCH:false}
+    paused: ${TRADING_PAUSED:false}
+    default-order-size: ${TRADING_DEFAULT_ORDER_SIZE:1}
+    max-trades-per-day: ${TRADING_MAX_TRADES_PER_DAY:20}
+  scheduling:
+    fixed-delay-ms: ${CYCLE_FIXED_DELAY_MS:15000}
+    initial-delay-ms: ${CYCLE_INITIAL_DELAY_MS:1000}
+  cassandra:
+    session-enabled: ${CASSANDRA_SESSION_ENABLED:false}
+    mode: ${STORAGE_MODE:local}
+    contact-points: ${CASSANDRA_CONTACT_POINTS:127.0.0.1:9042}
+    keyspace: ${CASSANDRA_KEYSPACE:hive_trader}
+    local-datacenter: ${CASSANDRA_LOCAL_DC:datacenter1}
+    username: ${CASSANDRA_USERNAME:}
+    password: ${CASSANDRA_PASSWORD:}
+    secure-connect-bundle-path: ${ASTRA_SECURE_BUNDLE_PATH:/mnt/secrets/astra/secure-connect.zip}
